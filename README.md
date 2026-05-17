@@ -1,5 +1,4 @@
 
-bai 1
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import csv
@@ -9,20 +8,18 @@ def scrape_fbref_undetected():
     url = "https://fbref.com/en/comps/9/stats/Premier-League-Stats"
     
     print("Đang khởi động trình duyệt chống phát hiện...")
-    # Khởi tạo Chrome với undetected_chromedriver
+    
     options = uc.ChromeOptions()
     driver = uc.Chrome(options=options)
     
     try:
         print("Đang truy cập trang web...")
         driver.get(url)
-        
-        # Đợi 15 giây để web tự động xác minh trình duyệt là an toàn
-        # Nếu có Captcha bắt tick vào ô vuông, bạn cứ tự lấy chuột tick vào nhé
+       
         print("Đang chờ tải trang và vượt qua Cloudflare (15 giây)...")
         time.sleep(15) 
         
-        # Lấy toàn bộ mã nguồn HTML
+       
         html_content = driver.page_source
         soup = BeautifulSoup(html_content, 'html.parser')
         
@@ -33,7 +30,7 @@ def scrape_fbref_undetected():
 
         print("Đã lấy được HTML, đang phân tích dữ liệu...")
         
-        # Lấy tiêu đề cột
+        
         thead_rows = table.find('thead').find_all('tr')
         headers_html = thead_rows[-1].find_all('th')
         
@@ -41,7 +38,7 @@ def scrape_fbref_undetected():
         for th in headers_html[1:]:
             csv_headers.append(th.text.strip())
 
-        # Lấy dữ liệu cầu thủ
+       
         tbody = table.find('tbody')
         rows = tbody.find_all('tr')
         
@@ -71,7 +68,7 @@ def scrape_fbref_undetected():
                 player_data_list.append(row_data)
                 stt += 1 
 
-        # Ghi file CSV
+        
         filename = "EPL_Players_Stats_Undetected.csv"
         with open(filename, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
