@@ -1,0 +1,45 @@
+import pandas as pd
+
+def analyze_team_stats():
+  
+    try:
+        df = pd.read_csv('EPL_Players_Stats_Undetected.csv')
+    except FileNotFoundError:
+        print("Không tìm thấy file. Hãy đảm bảo tên file chính xác!")
+        return
+
+  
+    text_columns = ['STT', 'Player', 'Nation', 'Pos', 'Squad', 'Age', 'Born', 'Matches']
+    
+   
+    columns_to_convert = [col for col in df.columns if col not in text_columns]
+
+    
+    for col in columns_to_convert:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    
+    summary_df = df.groupby('Squad')[columns_to_convert].agg(['mean', 'median', 'std'])
+
+   
+    summary_df.columns = [f"{col[0]}_{col[1]}" for col in summary_df.columns]
+    
+    
+    output_filename = "EPL_Team_Stats_Summary.csv"
+    summary_df.to_csv(output_filename, encoding='utf-8-sig')
+    print(f"Đã tính toán xong! Dữ liệu được lưu tại {output_filename}")
+
+    
+    print("\n--- ĐỘI BÓNG DẪN ĐẦU CÁC CHỈ SỐ (Theo giá trị Trung bình) ---")
+    
+    for col in columns_to_convert:
+        mean_col = f"{col}_mean"
+        
+        
+        if mean_col in summary_df.columns and not summary_df[mean_col].isna().all():
+            best_team = summary_df[mean_col].idxmax()
+            best_value = summary_df[mean_col].max()
+            print(f"Chỉ số {col}: {best_team} ({best_value:.2f})")
+
+if __name__ == "__main__":
+    analyze_team_stats()
