@@ -1,0 +1,25 @@
+from flask import Flask, jsonify, request
+import pandas as pd
+
+web_app = Flask(__name__)
+epl_dataset = pd.read_csv('EPL_Players_Stats_Undetected.csv')
+
+
+@web_app.route('/api/player', methods=['GET'])
+def search_player_data():
+    target_name = request.args.get('name')
+
+    if not target_name:
+        return jsonify({"error": "Yêu cầu bổ sung tham số 'name' để thực hiện tìm kiếm."}), 400
+
+    filtered_players = epl_dataset[epl_dataset['Player'].str.contains(target_name, case=False, na=False)]
+
+    if filtered_players.empty:
+        return jsonify({"message": f"Không tìm thấy thông tin của cầu thủ: {target_name}"}), 404
+
+    response_data = filtered_players.to_dict(orient='records')
+    return jsonify(response_data)
+
+
+if __name__ == '__main__':
+    web_app.run(debug=True, port=5000)
